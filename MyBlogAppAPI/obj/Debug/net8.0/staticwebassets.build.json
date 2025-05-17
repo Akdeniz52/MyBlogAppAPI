@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "TYpM2piBN10ghxm/RwkPoTJ0fhifFUEnUiBUCjDLfVI=",
+  "Source": "MyBlogAppAPI",
+  "BasePath": "_content/MyBlogAppAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
