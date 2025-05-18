@@ -1,0 +1,39 @@
+using Microsoft.EntityFrameworkCore;
+using MyBlogAppAPI.Data.Abstract;
+using MyBlogAppAPI.Entity;
+
+namespace MyBlogAppAPI.Data.Concrete.EfCore
+{
+    public class EfPostRepository : IPostRepository
+    {
+        private readonly BlogContext _context;
+
+        public EfPostRepository(BlogContext context)
+        {
+            _context = context;
+        }
+
+        public IQueryable<Post> Posts => _context.Posts;
+
+        public async Task CreatePostAsync(Post post)
+        {
+            await _context.Posts.AddAsync(post);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task EditPostAsync(Post post)
+        {
+            var entity = await _context.Posts.FirstOrDefaultAsync(i => i.PostId == post.PostId);
+            if (entity != null)
+            {
+                entity.Title = post.Title;
+                entity.Content = post.Content;
+                entity.Url = post.Url;
+                entity.Description = post.Description;
+                entity.IsActive = post.IsActive;
+
+                await _context.SaveChangesAsync();
+            }
+        }
+    }
+}

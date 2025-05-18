@@ -46,6 +46,8 @@ builder.Services.Configure<IdentityOptions>(options =>
     
     );
 builder.Services.AddScoped<IUserRepository, EfUserRepository>();
+builder.Services.AddScoped<ICommentRepository, EfCommentRepository>();
+builder.Services.AddScoped<IPostRepository, EfPostRepository>();
 builder.Services.AddEndpointsApiExplorer();
 
 

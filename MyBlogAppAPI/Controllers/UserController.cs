@@ -108,10 +108,11 @@ namespace MyBlogAppAPI.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName ?? "")
+                new Claim(ClaimTypes.Name, user.UserName ?? ""),
+               
             };
 
-            // 🔽 Roller claim olarak ekleniyor
+           
             var roles = _userManager.GetRolesAsync(user).Result;
             foreach (var role in roles)
             {
