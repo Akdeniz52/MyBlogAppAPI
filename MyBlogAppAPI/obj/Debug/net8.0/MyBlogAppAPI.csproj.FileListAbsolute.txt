@@ -140,3 +140,6 @@ C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.IdentityModel.J
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll

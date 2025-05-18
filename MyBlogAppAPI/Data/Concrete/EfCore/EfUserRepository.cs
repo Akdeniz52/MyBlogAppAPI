@@ -22,10 +22,7 @@ namespace MyBlogAppAPI.Data.Concrete
             return await _userManager.CreateAsync(user, password);
         }
 
-        public async Task<bool> CheckPasswordAsync(User user, string password)
-        {
-            return await _userManager.CheckPasswordAsync(user, password);
-        }
+        
 
 
     }

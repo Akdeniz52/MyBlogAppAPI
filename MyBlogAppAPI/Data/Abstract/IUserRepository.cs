@@ -8,7 +8,7 @@ namespace MyBlogAppAPI.Data.Abstract
         IQueryable<User> Users { get; }
         Task<IdentityResult> CreateUserAsync(User user, string password);
 
-        Task<bool> CheckPasswordAsync(User user, string password);
+        
 
 }
 

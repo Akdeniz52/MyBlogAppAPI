@@ -1,6 +1,11 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MyBlogAppAPI.Data.Abstract;
 using MyBlogAppAPI.DTO;
 using MyBlogAppAPI.Entity;
@@ -16,11 +21,21 @@ namespace MyBlogAppAPI.Controllers
 
         private readonly IUserRepository _userRepository;
         private readonly SignInManager<User> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IConfiguration _configuration;
 
-        public UserController(IUserRepository userRepository, SignInManager<User> signInManager)
+        private readonly UserManager<User> _userManager;
+        public UserController(IUserRepository userRepository,
+                             SignInManager<User> signInManager,
+                             RoleManager<IdentityRole> roleManager,
+                             UserManager<User> userManager,
+                             IConfiguration configuration)
         {
             _userRepository = userRepository;
             _signInManager = signInManager;
+            _roleManager = roleManager;
+            _userManager = userManager;
+            _configuration = configuration;
         }
 
         [HttpPost("register")]
@@ -46,6 +61,12 @@ namespace MyBlogAppAPI.Controllers
             var result = await _userRepository.CreateUserAsync(newUser, model.Password);
             if (result.Succeeded)
             {
+                if (!await _roleManager.RoleExistsAsync("User"))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole("User"));
+                }
+
+                await _userManager.AddToRoleAsync(newUser, "User");
                 return Ok(new { message = "Kayıt başarılı" });
             }
 
@@ -70,12 +91,45 @@ namespace MyBlogAppAPI.Controllers
                 return Unauthorized(new { message = "Geçersiz şifre" });
             }
 
+
+
             return Ok(new
             {
-                message = "Giriş başarılı",
+                token=GenerateJWT(user),
 
             });
         }
+
+        private object GenerateJWT(User user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration.GetSection("AppSettings:Secret").Value ?? "");
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName ?? "")
+            };
+
+            // 🔽 Roller claim olarak ekleniyor
+            var roles = _userManager.GetRolesAsync(user).Result;
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddDays(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        [Authorize]
         [HttpGet("profile/{username}")]
         public IActionResult Profile(string username)
         {
@@ -97,6 +151,17 @@ namespace MyBlogAppAPI.Controllers
                 user.FullName,
                 user.Image
             });
+        }
+        [Authorize]
+        [HttpGet("roles/{username}")]
+        public async Task<IActionResult> GetUserRoles(string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+                return NotFound();
+
+            var roles = await _userManager.GetRolesAsync(user);
+            return Ok(roles);
         }
     }
 }
