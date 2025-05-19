@@ -26,13 +26,20 @@ builder.Services.AddAuthentication(x =>
     x.RequireHttpsMetadata = false;
     x.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer=false,
-        ValidateAudience=false,
+        ValidateIssuer = false,
+        ValidateAudience = false,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration.GetSection("AppSettings:Secret").Value ?? "")),
-        ValidateLifetime=true,
+        ValidateLifetime = true,
     };
 });
+builder.Services.AddControllers()
+    .AddJsonOptions(x =>
+    {
+        x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        x.JsonSerializerOptions.WriteIndented = true;
+    });
+
 
 builder.Services.Configure<IdentityOptions>(options =>
 {

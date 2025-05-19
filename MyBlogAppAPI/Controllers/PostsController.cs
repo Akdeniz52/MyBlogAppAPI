@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBlogAppAPI.Data.Abstract;
+using MyBlogAppAPI.DTO;
 using MyBlogAppAPI.DTOs;
 using MyBlogAppAPI.Entity;
 
@@ -24,31 +25,56 @@ namespace MyBlogAppAPI.Controllers
             _commentRepository = commentRepository;
         }
 
-        [HttpGet("posts-list")]
+        [HttpGet("posts/list")]
         public async Task<IActionResult> GetPosts()
         {
             var posts = await _postRepository.Posts
-                .Where(x => x.IsActive)
+                // .Where(x => x.IsActive)
                 .ToListAsync();
 
             return Ok(posts);
         }
 
-        [HttpGet("detailspost-id")]
+        [HttpGet("details/{id}")]
         public async Task<IActionResult> GetPostDetails(int id)
         {
             var post = await _postRepository.Posts
                 .Include(p => p.User)
                 .Include(p => p.Comments)
-                .ThenInclude(c => c.User)
+                    .ThenInclude(c => c.User)
                 .FirstOrDefaultAsync(p => p.PostId == id);
 
             if (post == null)
             {
                 return NotFound();
             }
-            return Ok(post);
+
+            var dto = new PostDetailDTO
+            {
+                PostId = post.PostId,
+                Title = post.Title ?? "",
+                Description = post.Description ?? "",
+                Content = post.Content ?? "",
+                Url = post.Url ?? "",
+                IsActive = post.IsActive,
+                Image = post.Image ?? "",
+                PublishedOn = post.PublishedOn,
+                AuthorId = post.User.Id,
+                AuthorUserName = post.User.UserName ?? "",
+                AuthorFullName = post.User.FullName ?? "",
+                Comments = post.Comments.Select(c => new CommentDTO
+                {
+                    CommentId = c.CommentId,
+                    Text = c.Text ?? "",
+                    CreatedOn = c.PublishedOn,
+                    UserId = c.User.Id,
+                    UserName = c.User.UserName ?? ""
+                }).ToList()
+            };
+
+            return Ok(dto);
         }
+
 
         
         [Authorize]
