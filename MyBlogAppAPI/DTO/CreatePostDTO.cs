@@ -8,7 +8,7 @@ namespace MyBlogAppAPI.DTOs
         public bool IsActive { get; set; }
         public string Description { get; set; } = null!;
 
-       
+        public IFormFile? Image { get; set; }
        
     }
 }

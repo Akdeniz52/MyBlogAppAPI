@@ -143,3 +143,4 @@ C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\System.IdentityModel.Toke
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\MyBlogAppAPI.staticwebassets.runtime.json

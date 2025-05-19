@@ -20,25 +20,28 @@ namespace MyBlogAppAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost]
-        public IActionResult AddComment(CreateCommentDTO model)
+        [HttpPost("add")]
+        public async Task<IActionResult> AddComment([FromBody] CreateCommentDTO model)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier).ToString();
-            
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var username = User.FindFirstValue(ClaimTypes.Name);
-            var avatar = User.FindFirstValue(ClaimTypes.UserData);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
 
             var comment = new Comment
             {
                 Text = model.Text,
                 PublishedOn = DateTime.Now,
                 UserId = userId,
-                User = new User { UserName = username, Image = avatar }
+                PostId = model.PostId
             };
 
-            _commentRepository.CreateComment(comment);
+            await _commentRepository.CreateCommentAsync(comment);
+
             return Ok(comment);
         }
+
     }
 }

@@ -25,14 +25,31 @@ namespace MyBlogAppAPI.Controllers
             _commentRepository = commentRepository;
         }
 
-        [HttpGet("posts/list")]
+        [HttpGet("list")]
         public async Task<IActionResult> GetPosts()
         {
-            var posts = await _postRepository.Posts
+            var postlist = await _postRepository.Posts
                 // .Where(x => x.IsActive)
                 .ToListAsync();
 
-            return Ok(posts);
+            if (postlist == null || !postlist.Any())
+            {
+                return NotFound("Gönderi bulunamadı.");
+            }
+
+            var postDtoList = postlist.Select(post => new PostDTO
+            {
+                PostId = post.PostId,
+                Title = post.Title,
+                Description = post.Description,
+                Content = post.Content,
+                Url = post.Url,
+                IsActive = post.IsActive,
+                Image = $"{Request.Scheme}://{Request.Host}/img/{post.Image}",
+                PublishedOn = post.PublishedOn
+            }).ToList();
+
+            return Ok(postDtoList);
         }
 
         [HttpGet("details/{id}")]
@@ -57,7 +74,7 @@ namespace MyBlogAppAPI.Controllers
                 Content = post.Content ?? "",
                 Url = post.Url ?? "",
                 IsActive = post.IsActive,
-                Image = post.Image ?? "",
+                Image = $"{Request.Scheme}://{Request.Host}/img/{post.Image}",
                 PublishedOn = post.PublishedOn,
                 AuthorId = post.User.Id,
                 AuthorUserName = post.User.UserName ?? "",
@@ -79,7 +96,7 @@ namespace MyBlogAppAPI.Controllers
         
         [Authorize]
         [HttpPost("create-post")]
-        public async Task<IActionResult> CreatePost(CreatePostDTO model)
+        public async Task<IActionResult> CreatePost([FromForm]CreatePostDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -91,6 +108,19 @@ namespace MyBlogAppAPI.Controllers
             {
                 return Unauthorized();
             }
+
+            string? imageName = null;
+            if (model.Image != null)
+            {
+                var extension = Path.GetExtension(model.Image.FileName);
+                imageName = $"{Guid.NewGuid()}{extension}";
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/img", imageName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await model.Image.CopyToAsync(stream);
+                }
+            }
                 
 
             var post = new Post
@@ -99,14 +129,14 @@ namespace MyBlogAppAPI.Controllers
                 Content = model.Content,
                 Description = model.Description,
                 Url = model.Url,
-                Image = "1.jpg",
+                Image = imageName ?? "default.jpg",
                 PublishedOn = DateTime.Now,
                 UserId = userId,
                 IsActive = false
             };
 
             await _postRepository.CreatePostAsync(post);
-            return Ok(post);
+            return Ok(new { message = "Post oluşturuldu" });
         }
 
         [Authorize]

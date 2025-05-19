@@ -18,10 +18,11 @@ namespace MyBlogAppAPI.Data.Concrete.EfCore
 
         public IQueryable<Comment> Comments => _context.Comments;
 
-        public void CreateComment(Comment comment)
+
+        public async Task CreateCommentAsync(Comment comment)
         {
-            _context.Comments.Add(comment);
-            _context.SaveChanges();
+             _context.Comments.Add(comment);
+                await _context.SaveChangesAsync();
         }
     }
 }

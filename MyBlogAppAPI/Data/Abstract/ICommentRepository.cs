@@ -8,6 +8,6 @@ namespace MyBlogAppAPI.Data.Abstract
     {
         IQueryable<Comment> Comments {get;}
 
-        void CreateComment(Comment comment);
+        Task CreateCommentAsync(Comment comment);
     }
 }

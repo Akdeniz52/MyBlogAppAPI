@@ -13,7 +13,7 @@ namespace MyBlogAppAPI.Entity
         public string? Description { get; set; }
         public string? Content { get; set; }
         public string? Url { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = false;
         public string? Image { get; set; }
         public DateTime PublishedOn { get; set; }
 
