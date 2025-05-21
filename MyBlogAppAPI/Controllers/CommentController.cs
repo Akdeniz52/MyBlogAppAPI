@@ -27,7 +27,7 @@ namespace MyBlogAppAPI.Controllers
                 return BadRequest(ModelState);
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-          
+
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
@@ -37,13 +37,49 @@ namespace MyBlogAppAPI.Controllers
                 PublishedOn = DateTime.Now,
                 UserId = userId,
                 PostId = model.PostId,
-                  
+
             };
 
             await _commentRepository.CreateCommentAsync(comment);
 
             return Ok(new { message = "Yorum eklendi" });
         }
+
+        [Authorize]
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> EditComment(int id, [FromBody] CommentUpdateDTO model)
+        {
+            var comment = await _commentRepository.GetByIdAsync(id);
+            if (comment == null)
+                return NotFound(new { message = "Yorum bulunamadı." });
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (comment.UserId != userId)
+                return Forbid(); // Başkasının yorumunu düzenleyemez
+
+            comment.Text = model.Text;
+            comment.PublishedOn = DateTime.Now;
+
+            await _commentRepository.UpdateCommentAsync(comment);
+            return Ok(new { message = "Yorum başarıyla güncellendi." });
+        }
+
+        [Authorize]
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var comment = await _commentRepository.GetByIdAsync(id);
+            if (comment == null)
+                return NotFound(new { message = "Yorum bulunamadı." });
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (comment.UserId != userId)
+                return Forbid(); // Başkasının yorumunu silemez
+
+            await _commentRepository.DeleteCommentAsync(comment);
+            return Ok(new { message = "Yorum başarıyla silindi." });
+        }
+
 
     }
 }
