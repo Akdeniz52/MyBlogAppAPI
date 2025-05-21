@@ -35,5 +35,19 @@ namespace MyBlogAppAPI.Data.Concrete.EfCore
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task DeletePost(int postId)
+        {
+            var post = await _context.Posts.FindAsync(postId);
+            if (post != null)
+            {
+                _context.Posts.Remove(post);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

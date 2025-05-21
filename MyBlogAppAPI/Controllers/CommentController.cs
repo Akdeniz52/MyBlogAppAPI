@@ -27,6 +27,7 @@ namespace MyBlogAppAPI.Controllers
                 return BadRequest(ModelState);
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+          
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
@@ -35,12 +36,13 @@ namespace MyBlogAppAPI.Controllers
                 Text = model.Text,
                 PublishedOn = DateTime.Now,
                 UserId = userId,
-                PostId = model.PostId
+                PostId = model.PostId,
+                  
             };
 
             await _commentRepository.CreateCommentAsync(comment);
 
-            return Ok(comment);
+            return Ok(new { message = "Yorum eklendi" });
         }
 
     }

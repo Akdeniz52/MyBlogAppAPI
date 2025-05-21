@@ -39,12 +39,10 @@ namespace MyBlogAppAPI.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDTO model)
+        public async Task<IActionResult> Register([FromForm] RegisterDTO model, IFormFile Image)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var existingUser = await _userRepository.Users
                 .FirstOrDefaultAsync(x => x.UserName == model.UserName || x.Email == model.Email);
@@ -52,12 +50,26 @@ namespace MyBlogAppAPI.Controllers
             if (existingUser != null)
                 return BadRequest(new { message = "Kullanıcı adı veya Email kullanımda" });
 
+            string imagePath = null;
+            if (Image != null && Image.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
+                var savePath = Path.Combine("wwwroot", "uploads","users", fileName);
+                using (var stream = new FileStream(savePath, FileMode.Create))
+                {
+                    await Image.CopyToAsync(stream);
+                }
+                imagePath = "http://localhost:5261/uploads/users/" + fileName;
+            }
+
             var newUser = new User
             {
                 UserName = model.UserName,
                 FullName = model.FullName,
                 Email = model.Email,
+                Image = imagePath 
             };
+
             var result = await _userRepository.CreateUserAsync(newUser, model.Password);
             if (result.Succeeded)
             {
@@ -70,8 +82,9 @@ namespace MyBlogAppAPI.Controllers
                 return Ok(new { message = "Kayıt başarılı" });
             }
 
-            return BadRequest(result.Errors);
+            return BadRequest(new { message = "Kayıt başarısız" });
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO model)
@@ -104,11 +117,17 @@ namespace MyBlogAppAPI.Controllers
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration.GetSection("AppSettings:Secret").Value ?? "");
+            
+            var baseImageUrl = _configuration["AppSettings:BaseImageUrl"]; 
+            var imageUrl = string.IsNullOrEmpty(user.Image)
+                ? ""
+                : $"{baseImageUrl}{user.Image}";
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName ?? ""),
+                new Claim("picture",imageUrl ?? ""),
                
             };
 

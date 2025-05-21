@@ -85,6 +85,7 @@ namespace MyBlogAppAPI.Controllers
                     Text = c.Text ?? "",
                     CreatedOn = c.PublishedOn,
                     UserId = c.User.Id,
+                    Image = c.User.Image,
                     UserName = c.User.UserName ?? ""
                 }).ToList()
             };
@@ -93,15 +94,15 @@ namespace MyBlogAppAPI.Controllers
         }
 
 
-        
+
         [Authorize]
         [HttpPost("create-post")]
-        public async Task<IActionResult> CreatePost([FromForm]CreatePostDTO model)
+        public async Task<IActionResult> CreatePost([FromForm] CreatePostDTO model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }   
+            }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
@@ -121,7 +122,7 @@ namespace MyBlogAppAPI.Controllers
                     await model.Image.CopyToAsync(stream);
                 }
             }
-                
+
 
             var post = new Post
             {
@@ -144,46 +145,84 @@ namespace MyBlogAppAPI.Controllers
         public async Task<IActionResult> GetUserPosts()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
-            
-            var posts = _postRepository.Posts;
+
+
             if (userId == null)
             {
                 return BadRequest();
             }
-            
-            return Ok(await posts.Where(p => p.UserId == userId).ToListAsync());
-             
+            var posts = await _postRepository.Posts.Where(p => p.UserId == userId).ToListAsync();
+            if (posts == null || !posts.Any())
+            {
+                return NotFound("Gönderi bulunamadı.");
+            }
+
+            var postDtoList = posts.Select(post => new PostDTO
+            {
+                PostId = post.PostId,
+                Title = post.Title,
+                Description = post.Description,
+                Content = post.Content,
+                Url = post.Url,
+                IsActive = post.IsActive,
+                Image = $"{Request.Scheme}://{Request.Host}/img/{post.Image}",
+                PublishedOn = post.PublishedOn
+            }).ToList();
+
+
+            return Ok(postDtoList);
+
         }
 
         [Authorize]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> EditPost(int id, CreatePostDTO model)
+        [HttpPost("edit-post")]
+        public async Task<IActionResult> EditPost([FromForm] EditPostDTO model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var entityToUpdate = await _postRepository.Posts
-                .FirstOrDefaultAsync(p => p.PostId == id);
-
-            if (entityToUpdate == null)
-            {
+            var post = await _postRepository.Posts.FirstOrDefaultAsync(p => p.PostId == model.PostId);
+            if (post == null)
                 return NotFound();
-            }
 
-            entityToUpdate.Title = model.Title;
-            entityToUpdate.Content = model.Content;
-            entityToUpdate.Description = model.Description;
-            entityToUpdate.Url = model.Url;
+            post.Title = model.Title;
+            post.Content = model.Content;
+            post.Description = model.Description;
+            post.Url = model.Url;
+            post.IsActive = model.IsActive;
 
-            if (User.FindFirstValue(ClaimTypes.Role) == "admin")
+            if (model.Image != null)
             {
-                entityToUpdate.IsActive = model.IsActive;
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.Image.FileName);
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/img", fileName);
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await model.Image.CopyToAsync(stream);
+                }
+
+                post.Image = fileName;
             }
 
-            await _postRepository.EditPostAsync(entityToUpdate);
-            return Ok(entityToUpdate);
+            await _postRepository.SaveChangesAsync();
+
+            return Ok();
         }
+        
+        [Authorize]
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var post = await _postRepository.Posts.FirstOrDefaultAsync(p => p.PostId == id && p.UserId == userId);
+
+            if (post == null)
+            {
+                return NotFound("Post bulunamadı veya silme yetkiniz yok.");
+            }
+
+            await _postRepository.DeletePost(post.PostId);
+            await _postRepository.SaveChangesAsync();
+
+            return Ok(new { message = "Post başarıyla silindi." });
+        }
+
     }
 }
