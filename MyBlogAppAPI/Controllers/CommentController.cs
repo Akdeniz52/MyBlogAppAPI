@@ -55,7 +55,7 @@ namespace MyBlogAppAPI.Controllers
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (comment.UserId != userId)
-                return Forbid(); // Başkasının yorumunu düzenleyemez
+                return Forbid();
 
             comment.Text = model.Text;
             comment.PublishedOn = DateTime.Now;
@@ -74,7 +74,7 @@ namespace MyBlogAppAPI.Controllers
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (comment.UserId != userId)
-                return Forbid(); // Başkasının yorumunu silemez
+                return Forbid(); 
 
             await _commentRepository.DeleteCommentAsync(comment);
             return Ok(new { message = "Yorum başarıyla silindi." });

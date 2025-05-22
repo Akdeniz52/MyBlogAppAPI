@@ -25,6 +25,10 @@
       "PackagePath": "staticwebassets\\img\\4f1b584d-f2ce-4531-be57-af198f3baa53.jpg"
     },
     {
+      "Id": "C:\\Users\\akden\\MyBlogApp\\MyBlogAppAPI\\wwwroot\\img\\6e7a0d93-49f5-4640-990a-a02d7676dd7b.jpg",
+      "PackagePath": "staticwebassets\\img\\6e7a0d93-49f5-4640-990a-a02d7676dd7b.jpg"
+    },
+    {
       "Id": "C:\\Users\\akden\\MyBlogApp\\MyBlogAppAPI\\wwwroot\\img\\cdac3b90-b0d9-4a2c-839e-9080cee99842.jpg",
       "PackagePath": "staticwebassets\\img\\cdac3b90-b0d9-4a2c-839e-9080cee99842.jpg"
     },
@@ -35,6 +39,14 @@
     {
       "Id": "C:\\Users\\akden\\MyBlogApp\\MyBlogAppAPI\\wwwroot\\uploads\\users\\2614c643-5ffa-431b-9233-39ca4796710a.jpg",
       "PackagePath": "staticwebassets\\uploads\\users\\2614c643-5ffa-431b-9233-39ca4796710a.jpg"
+    },
+    {
+      "Id": "C:\\Users\\akden\\MyBlogApp\\MyBlogAppAPI\\wwwroot\\uploads\\users\\3b19da63-bd0b-49ac-b491-6c6812ba16be.jpg",
+      "PackagePath": "staticwebassets\\uploads\\users\\3b19da63-bd0b-49ac-b491-6c6812ba16be.jpg"
+    },
+    {
+      "Id": "C:\\Users\\akden\\MyBlogApp\\MyBlogAppAPI\\wwwroot\\uploads\\users\\de47b42f-cc82-4e83-a347-14676ecead59.jpg",
+      "PackagePath": "staticwebassets\\uploads\\users\\de47b42f-cc82-4e83-a347-14676ecead59.jpg"
     },
     {
       "Id": "C:\\Users\\akden\\MyBlogApp\\MyBlogAppAPI\\wwwroot\\uploads\\users\\e8c31b48-d257-41ee-9076-6a1facf86092.jpg",

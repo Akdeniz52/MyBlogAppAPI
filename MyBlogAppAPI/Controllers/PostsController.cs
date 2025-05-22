@@ -29,7 +29,7 @@ namespace MyBlogAppAPI.Controllers
         public async Task<IActionResult> GetPosts()
         {
             var postlist = await _postRepository.Posts
-                // .Where(x => x.IsActive)
+                .Where(x => x.IsActive)
                 .ToListAsync();
 
             if (postlist == null || !postlist.Any())
@@ -175,7 +175,7 @@ namespace MyBlogAppAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost("edit-post")]
+        [HttpPut("edit-post")]
         public async Task<IActionResult> EditPost([FromForm] EditPostDTO model)
         {
             var post = await _postRepository.Posts.FirstOrDefaultAsync(p => p.PostId == model.PostId);
@@ -205,7 +205,7 @@ namespace MyBlogAppAPI.Controllers
 
             return Ok();
         }
-        
+
         [Authorize]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
@@ -222,6 +222,33 @@ namespace MyBlogAppAPI.Controllers
             await _postRepository.SaveChangesAsync();
 
             return Ok(new { message = "Post başarıyla silindi." });
+        }
+
+        [Authorize(Roles ="admin")]
+        [HttpGet("adminpanelpost")]
+        public async Task<IActionResult> AdminPanelPostAsync()
+        {
+            var postlist = await _postRepository.Posts
+                .ToListAsync();
+
+            if (postlist == null || !postlist.Any())
+            {
+                return NotFound("Gönderi bulunamadı.");
+            }
+
+            var postDtoList = postlist.Select(post => new PostDTO
+            {
+                PostId = post.PostId,
+                Title = post.Title,
+                Description = post.Description,
+                Content = post.Content,
+                Url = post.Url,
+                IsActive = post.IsActive,
+                Image = $"{Request.Scheme}://{Request.Host}/img/{post.Image}",
+                PublishedOn = post.PublishedOn
+            }).ToList();
+
+            return Ok(postDtoList);
         }
 
     }

@@ -54,7 +54,7 @@ namespace MyBlogAppAPI.Controllers
             if (Image != null && Image.Length > 0)
             {
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
-                var savePath = Path.Combine("wwwroot", "uploads","users", fileName);
+                var savePath = Path.Combine("wwwroot", "uploads", "users", fileName);
                 using (var stream = new FileStream(savePath, FileMode.Create))
                 {
                     await Image.CopyToAsync(stream);
@@ -67,18 +67,22 @@ namespace MyBlogAppAPI.Controllers
                 UserName = model.UserName,
                 FullName = model.FullName,
                 Email = model.Email,
-                Image = imagePath 
+                Image = imagePath
             };
 
             var result = await _userRepository.CreateUserAsync(newUser, model.Password);
             if (result.Succeeded)
             {
-                if (!await _roleManager.RoleExistsAsync("User"))
+                if (!await _roleManager.RoleExistsAsync("admin"))
                 {
-                    await _roleManager.CreateAsync(new IdentityRole("User"));
+                    var roleResult = await _roleManager.CreateAsync(new IdentityRole("admin"));
+                    if (!roleResult.Succeeded)
+                    {
+                        return BadRequest("Admin rolü oluşturulamadı");
+                    }
                 }
 
-                await _userManager.AddToRoleAsync(newUser, "User");
+                await _userManager.AddToRoleAsync(newUser, "admin");
                 return Ok(new { message = "Kayıt başarılı" });
             }
 
@@ -108,7 +112,7 @@ namespace MyBlogAppAPI.Controllers
 
             return Ok(new
             {
-                token=GenerateJWT(user),
+                token = GenerateJWT(user),
 
             });
         }
@@ -117,8 +121,8 @@ namespace MyBlogAppAPI.Controllers
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration.GetSection("AppSettings:Secret").Value ?? "");
-            
-            var baseImageUrl = _configuration["AppSettings:BaseImageUrl"]; 
+
+            var baseImageUrl = _configuration["AppSettings:BaseImageUrl"];
             var imageUrl = string.IsNullOrEmpty(user.Image)
                 ? ""
                 : $"{baseImageUrl}{user.Image}";
@@ -128,10 +132,10 @@ namespace MyBlogAppAPI.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName ?? ""),
                 new Claim("picture",imageUrl ?? ""),
-               
+
             };
 
-           
+
             var roles = _userManager.GetRolesAsync(user).Result;
             foreach (var role in roles)
             {
@@ -157,20 +161,38 @@ namespace MyBlogAppAPI.Controllers
                 return BadRequest();
 
             var user = _userRepository.Users
-                        .Include(x => x.Posts)
-                        .Include(x => x.Comments)
-                        .ThenInclude(x => x.Post)
-                        .FirstOrDefault(x => x.UserName == username);
+                        .Include(u => u.Posts)
+                        .Include(u => u.Comments)
+                            .ThenInclude(c => c.Post)
+                        .FirstOrDefault(u => u.UserName == username);
+
             if (user == null)
                 return NotFound();
 
-            return Ok(new
+            var result = new
             {
                 user.UserName,
                 user.Email,
                 user.FullName,
-                user.Image
-            });
+                user.Image,
+                Posts = user.Posts.Select(p => new
+                {
+                    p.PostId,
+                    p.Title,
+                }),
+                Comments = user.Comments.Select(c => new
+                {
+                    c.CommentId,
+                    c.Text,
+                    Post = new
+                    {
+                        c.Post.PostId,
+                        c.Post.Title,
+                    }
+                })
+            };
+
+            return Ok(result);
         }
         [Authorize]
         [HttpGet("roles/{username}")]
@@ -183,5 +205,64 @@ namespace MyBlogAppAPI.Controllers
             var roles = await _userManager.GetRolesAsync(user);
             return Ok(roles);
         }
+        
+        [Authorize]
+        [HttpPut("edit")]
+        public async Task<IActionResult> Edit([FromForm] EditUserDTO model, IFormFile? Image)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound();
+
+           
+            var existingUser = await _userRepository.Users
+                .FirstOrDefaultAsync(u => (u.UserName == model.UserName || u.Email == model.Email) && u.Id != userId);
+
+            if (existingUser != null)
+                return BadRequest(new { message = "Kullanıcı adı veya email başka bir kullanıcı tarafından kullanılıyor." });
+
+            
+            user.UserName = model.UserName;
+            user.Email = model.Email;
+            user.FullName = model.FullName;
+
+            
+            if (!string.IsNullOrWhiteSpace(model.Password))
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+                if (!result.Succeeded)
+                    return BadRequest(new { message = "Şifre güncellenemedi", errors = result.Errors });
+            }
+
+           
+            if (Image != null && Image.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
+                var savePath = Path.Combine("wwwroot", "uploads", "users", fileName);
+                using (var stream = new FileStream(savePath, FileMode.Create))
+                {
+                    await Image.CopyToAsync(stream);
+                }
+
+                user.Image = "http://localhost:5261/uploads/users/" + fileName;
+            }
+
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (updateResult.Succeeded)
+            {
+                return Ok(new { message = "Profil başarıyla güncellendi" });
+            }
+
+            return BadRequest(new { message = "Güncelleme sırasında hata oluştu", errors = updateResult.Errors });
+        }
+
     }
 }
