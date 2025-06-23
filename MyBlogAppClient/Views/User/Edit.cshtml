@@ -1,0 +1,105 @@
+@model EditUserDTO
+
+<div class="row">
+    <div class="col-12">
+        <div class="bg-white p-4">
+            <h1>Profili Düzenle</h1>
+            <form id="editForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label asp-for="UserName" class="form-label"></label>
+                    <input asp-for="UserName" id="UserName" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label asp-for="FullName" class="form-label"></label>
+                    <input asp-for="FullName" id="FullName" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" id="Email" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Profil Fotoğrafı</label>
+                    <input type="file" id="Image" name="Image" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" id="Password" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <input asp-for="ConfirmPassword" id="ConfirmPassword" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-success">Kaydet</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const token = localStorage.getItem("token");
+        const base64Payload = token.split('.')[1];
+        const decodedPayload = JSON.parse(atob(base64Payload));
+        const username = decodedPayload["unique_name"]; 
+
+        if (!token || !username) {
+            alert("Giriş yapmanız gerekiyor.");
+            window.location.href = "/user/login";
+            return;
+        }
+
+      
+        const response = await fetch(`http://localhost:5261/api/user/profile/${username}`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            alert("Bilgiler alınamadı.");
+            return;
+        }
+
+        const user = await response.json();
+
+        
+        document.getElementById("UserName").value = user.userName;
+        document.getElementById("FullName").value = user.fullName;
+        document.getElementById("Email").value = user.email;
+
+        
+        document.getElementById("editForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append("UserName", document.getElementById("UserName").value);
+            formData.append("FullName", document.getElementById("FullName").value);
+            formData.append("Email", document.getElementById("Email").value);
+            formData.append("Password", document.getElementById("Password").value);
+            formData.append("ConfirmPassword", document.getElementById("ConfirmPassword").value);
+
+            const imageInput = document.getElementById("Image");
+            if (imageInput.files.length > 0) {
+                formData.append("Image", imageInput.files[0]);
+            }
+
+            const editResponse = await fetch("http://localhost:5261/api/user/edit", {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (editResponse.ok) {
+                alert("Profil güncellendi.");
+                localStorage.removeItem("token");
+                window.location.href = `/user/login`;
+            } else {
+                alert("Güncelleme başarısız.");
+            }
+        });
+    });
+</script>
+}

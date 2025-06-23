@@ -1,0 +1,80 @@
+@model CreatePostDTO
+
+<div class="row">
+    <div class="col-12">
+        <div class="bg-white p-4">
+            <h1>Post Create</h1>
+            <form id="createPostForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" name="Title" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <input asp-for="Description" name="Description" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Url" class="form-label"></label>
+                    <input asp-for="Url" name="Url" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Content" class="form-label"></label>
+                    <textarea asp-for="Content" name="Content" class="form-control" id="Content"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Image" class="form-label">Resim Seç</label>
+                    <input asp-for="Image" name="Image" class="form-control" type="file" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.6.1/tinymce.min.js"
+        integrity="sha512-bib7srucEhHYYWglYvGY+EQb0JAAW0qSOXpkPTMgCgW8eLtswHA/K4TKyD4+FiXcRHcy8z7boYxk0HTACCTFMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        tinymce.init({
+            selector: '#Content'
+        });
+
+        document.getElementById("createPostForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            
+            const content = tinymce.get("Content").getContent();
+            formData.set("Content", content);
+
+          
+            const token = localStorage.getItem("token");
+
+            const response = await fetch("http://localhost:5261/api/posts/create-post", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Post başarıyla oluşturuldu!");
+                window.location.href = "/Post/posts";
+            } else {
+                const error = await response.text();
+                alert("Hata oluştu: " + error);
+            }
+        });
+    </script>
+}

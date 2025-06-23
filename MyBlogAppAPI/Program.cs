@@ -19,13 +19,13 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowClient",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5121") // Client uygulamanın adresi
+            policy.WithOrigins("http://localhost:5121") 
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
 });
 
-// Add services to the container.
+
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<BlogContext>(options => options.UseSqlite(builder.Configuration["ConnectionStrings:SQLite_Connection"]));
@@ -77,7 +77,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyBlogAppAPI", Version = "v1" });
 
-    // 🔒 JWT Authentication tanımı
+   
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -108,7 +108,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();

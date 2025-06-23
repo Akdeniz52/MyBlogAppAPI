@@ -1,0 +1,90 @@
+<div class="row">
+    <div class="col-md-2">
+        <div class="bg-white p-2 text-center">
+            <img id="userImage" src="" class="img-fluid rounded" alt="">
+            <a id="editProfileBtn" href="#" class="btn btn-primary btn-sm mt-2 d-none">Profili Düzenle</a>
+        </div>
+    </div>
+    <div class="col-md-10">
+        <div class="bg-white p-2">
+            <h5 id="userName"></h5>
+            <hr> 
+            <div id="posts">
+                <h5 class="my-4">Yayınlanan Gönderiler</h5>
+                <ul class="list-group" id="postList">
+                    
+                </ul>
+            </div>
+            <div id="comments">
+                <h5 class="my-4">Yorumlar</h5>
+                <ul class="list-group" id="commentList">
+                   
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+        document.addEventListener("DOMContentLoaded", async () => {
+        const token = localStorage.getItem("token");
+        const username = window.location.pathname.split("/").pop(); 
+        
+        if (!token || !username) {
+            alert("Giriş yapmanız gerekiyor.");
+            window.location.href = "/user/login";
+            return;
+        }
+
+       
+        const base64Payload = token.split('.')[1];
+        const decodedPayload = JSON.parse(atob(base64Payload));
+        const currentUsername = decodedPayload["unique_name"]; 
+
+        const response = await fetch(`http://localhost:5261/api/user/profile/${username}`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            alert("Profil bilgileri alınamadı.");
+            return;
+        }
+
+        const user = await response.json();
+
+        document.getElementById("userImage").src = user.image;
+        document.getElementById("userName").textContent = user.fullName;
+
+        const postList = document.getElementById("postList");
+        user.posts.forEach(post => {
+            const li = document.createElement("li");
+            li.className = "list-group-item";
+            li.innerHTML = `<i class="bi bi-caret-right-fill"></i> 
+                            <a href="/post/details/${post.postId}">${post.title}</a>`;
+            postList.appendChild(li);
+        });
+
+        const commentList = document.getElementById("commentList");
+        user.comments.forEach(comment => {
+            const li = document.createElement("li");
+            li.className = "list-group-item";
+            li.innerHTML = `<i class="bi bi-chat-right-fill"></i> 
+                            <i>${comment.text}</i>  
+                            <a href="/post/details/${comment.post.postId}">[${comment.post.title}]</a>`;
+            commentList.appendChild(li);
+        });
+
+        // Eğer kullanıcı kendi profiline bakıyorsa "Profili Düzenle" butonunu göster
+        if (currentUsername === username) {
+            const editBtn = document.getElementById("editProfileBtn");
+            editBtn.href = `/user/edit/${user.id}`;
+            editBtn.classList.remove("d-none");
+        }
+    });
+
+</script>
+}

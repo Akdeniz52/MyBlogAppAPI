@@ -1,0 +1,46 @@
+@model LoginDTO
+
+<div class="row">
+    <div class="col-12">
+        <div class="bg-white p-4">
+            <h1>Login</h1>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" id="email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" type="password" id="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="login()">Giriş Yap</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function login() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            const response = await fetch("http://localhost:5261/api/user/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email, password: password }) // 👈 burada "email" key kullanılıyor
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem("token", data.token);
+                alert("Giriş başarılı!");
+                window.location.href = "/Home/Index";
+            } else {
+                alert("Giriş başarısız: " + (data.message || "Hatalı kullanıcı bilgisi"));
+            }
+        }
+    </script>
+}

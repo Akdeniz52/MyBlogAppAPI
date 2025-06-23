@@ -1,0 +1,95 @@
+@model EditPostDTO
+
+<div class="row">
+    <div class="col-12">
+        <div class="bg-white p-4">
+            <h1>Post Edit</h1>
+            <form id="editPostForm" enctype="multipart/form-data">
+                <input type="hidden" asp-for="PostId" name="PostId" />
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" name="Title" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <input asp-for="Description" name="Description" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Url" class="form-label"></label>
+                    <input asp-for="Url" name="Url" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Content" class="form-label"></label>
+                    <textarea asp-for="Content" name="Content" class="form-control" id="Content"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Image" class="form-label">Resim Seç</label>
+                    <input asp-for="Image" name="Image" class="form-control" type="file" />
+                </div>
+                <div id="isActiveContainer" class="form-check mb-3" style="display: none;">
+                <input asp-for="IsActive" name="IsActive" class="form-check-input" type="checkbox" />
+                <label asp-for="IsActive" class="form-check-label"></label>
+                </div>
+
+
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.6.1/tinymce.min.js"
+        integrity="sha512-bib7srucEhHYYWglYvGY+EQb0JAAW0qSOXpkPTMgCgW8eLtswHA/K4TKyD4+FiXcRHcy8z7boYxk0HTACCTFMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        tinymce.init({
+            selector: '#Content'
+        });
+
+     
+        const token = localStorage.getItem("token");
+        if (token) {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const roles = payload["role"] || payload["role"]; 
+
+            if (roles && (Array.isArray(roles) ? roles.includes("admin") : roles === "admin")) {
+                document.getElementById("isActiveContainer").style.display = "block";
+            }
+        }
+
+       
+        document.getElementById("editPostForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            // TinyMCE içeriğini al
+            const content = tinymce.get("Content").getContent();
+            formData.set("Content", content);
+
+            const response = await fetch("http://localhost:5261/api/posts/edit-post", {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Post başarıyla güncellendi!");
+                window.location.href = "/Post/posts";
+            } else {
+                const error = await response.text();
+                alert("Hata oluştu: " + error);
+            }
+        });
+    </script>
+}

@@ -1,0 +1,214 @@
+@model PostDetailDTO
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="bg-white p-4">
+            <h1 class="h4 mb-4">@Model.Title</h1>
+            <div class="tags"></div>
+            <img src="@Model.Image" class="img-fluid rounded mb-3" alt="">
+            <ul class="list-inline">
+                <li class="list-inline-item"><i class="bi bi-calendar"> @Model.PublishedOn.ToString("d")</i></li>
+                <li class="list-inline-item"><i class="bi bi-person-circle"> <a href="/users/profile/@Model.AuthorUserName">@Model.AuthorUserName</a></i></li>
+            </ul>
+            <hr class="py-3">
+            <p>@Html.Raw(Model.Content)</p>
+        </div>
+
+        <div class="bg-white mt-3">
+            <div class="card border-0">
+                <div class="card-header pb-0">
+                    <h4>@Model.Comments.Count() adet yorum</h4>
+                </div>
+                <div class="card-body">
+                    @foreach(var comment in Model.Comments)
+                    {
+                        <div class="my-4 d-flex comment-item" data-username="@comment.UserName" data-id="@comment.CommentId">
+                            <img src="@comment.Image" alt="" class="avatar rounded-circle float-start me-3">
+                            <div class="w-100">
+                                <div class="mb-2 d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="me-2 d-inline"><a href="/user/profile/@comment.UserName">@comment.UserName</a></h6>
+                                        <span>@comment.CreatedOn.ToString("d")</span>
+                                    </div>
+                                    <div class="comment-actions" style="display: none;">
+                                        <button class="btn btn-sm btn-outline-secondary me-1 edit-comment">Düzenle</button>
+                                        <button class="btn btn-sm btn-outline-danger delete-comment">Sil</button>
+                                    </div>
+                                </div>
+                                <p class="comment-text">@comment.Text</p>
+                                <div class="edit-area" style="display: none;">
+                                    <textarea class="form-control mb-2 edit-textarea" rows="3">@comment.Text</textarea>
+                                    <button class="btn btn-sm btn-success save-edit">Onayla</button>
+                                    <button class="btn btn-sm btn-secondary cancel-edit">İptal</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <hr class="my-4">
+
+                    <div id="commentSection" style="display:none;">
+                        <h4 class="mb-3">Yorum Ekle</h4>
+                        <form id="commentForm">
+                            <input type="hidden" name="PostId" value="@Model.PostId" />
+                            <input type="hidden" name="Url" value="@Model.Url" />
+                            <div class="mb-3">
+                                <label for="Text" class="form-label">Yorum</label>
+                                <textarea name="Text" id="Text" rows="3" class="form-control"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <button type="submit" class="btn btn-primary">Kaydet</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <p id="loginMessage">Yorum eklemek için giriş yapmalısınız. <a href="/users/login">Giriş Yap</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const token = localStorage.getItem('token');
+
+    
+
+    if (token) {
+        document.getElementById('commentSection').style.display = 'block';
+        document.getElementById('loginMessage').style.display = 'none';
+    }
+
+
+    document.getElementById('commentForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const postId = this.PostId.value;
+        const text = this.Text.value.trim();
+
+        if (!text) {
+            alert('Lütfen yorum yazınız.');
+            return;
+        }
+
+        if (!token) {
+            alert('Yorum eklemek için giriş yapmalısınız!');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:5261/api/comment/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    PostId: postId,
+                    Text: text,
+                    
+                })
+            });
+
+            if (response.ok) {
+                alert('Yorum başarıyla eklendi!');
+                location.reload();
+            } else {
+                let errorMessage = 'Bilinmeyen bir hata oluştu.';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch (e) {
+                    
+                }
+                alert('Yorum eklenirken hata oluştu: ' + errorMessage);
+            }
+        } catch (err) {
+            alert('Bir hata oluştu: ' + err.message);
+        }
+    });
+
+    
+    let currentUser = null;
+
+    if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        currentUser = payload['unique_name'];
+        document.getElementById('commentSection').style.display = 'block';
+        document.getElementById('loginMessage').style.display = 'none';
+    }
+
+   
+    document.querySelectorAll('.comment-item').forEach(item => {
+        const userName = item.dataset.username;
+        const commentId = item.dataset.id;
+
+        if (userName === currentUser) {
+            const actions = item.querySelector('.comment-actions');
+            actions.style.display = 'inline';
+        }
+
+        const editBtn = item.querySelector('.edit-comment');
+        const deleteBtn = item.querySelector('.delete-comment');
+        const saveBtn = item.querySelector('.save-edit');
+        const cancelBtn = item.querySelector('.cancel-edit');
+        const textPara = item.querySelector('.comment-text');
+        const editArea = item.querySelector('.edit-area');
+        const textarea = item.querySelector('.edit-textarea');
+
+        editBtn?.addEventListener('click', () => {
+            textPara.style.display = 'none';
+            editArea.style.display = 'block';
+        });
+
+        cancelBtn?.addEventListener('click', () => {
+            editArea.style.display = 'none';
+            textPara.style.display = 'block';
+        });
+
+        saveBtn?.addEventListener('click', async () => {
+            const newText = textarea.value.trim();
+            if (!newText) return alert('Yorum boş olamaz.');
+            try {
+                const res = await fetch(`http://localhost:5261/api/comment/update/${commentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ text: newText })
+                });
+                if (res.ok) {
+                    alert('Yorum güncellendi.');
+                    location.reload();
+                } else {
+                    const err = await res.json();
+                    alert('Hata: ' + (err.message || 'Güncellenemedi.'));
+                }
+            } catch (err) {
+                alert('Sunucu hatası: ' + err.message);
+            }
+        });
+
+        deleteBtn?.addEventListener('click', async () => {
+            if (!confirm('Bu yorumu silmek istediğinize emin misiniz?')) return;
+            try {
+                const res = await fetch(`http://localhost:5261/api/comment/delete/${commentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (res.ok) {
+                    alert('Yorum silindi.');
+                    location.reload();
+                } else {
+                    const err = await res.json();
+                    alert('Hata: ' + (err.message || 'Silinemedi.'));
+                }
+            } catch (err) {
+                alert('Sunucu hatası: ' + err.message);
+            }
+        });
+    });
+</script>
+

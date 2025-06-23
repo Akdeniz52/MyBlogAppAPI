@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/lib/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm">
+        <div class="container">
+            <a href="/post/posts" class="navbar-brand">
+            <i class="bi bi-code"></i>BloggApp
+            </a>
+            <ul class="navbar-nav ms-auto">
+    <li class="nav-item" id="nav-posts"><a href="/post/posts" class="nav-link">Posts</a></li>
+
+    <!-- Giriş yapmış kullanıcı için -->
+    <li class="nav-item d-none" id="nav-create"><a href="/post/create" class="nav-link">Create</a></li>
+    <li class="nav-item d-none" id="nav-mypost"><a href="/post/mypost" class="nav-link">MyPosts</a></li>
+    <li class="nav-item d-none" id="nav-profile"><a href="#" class="nav-link" id="profileLink">Profile</a></li>
+    
+    <li class="nav-item d-none" id="nav-admin"><a href="/user/adminpanelpost" class="nav-link">AdminPanelPost</a></li>
+    <li class="nav-item d-none" id="nav-logout"><a href="#" class="nav-link" id="logoutBtn">Logout</a></li>
+
+    <!-- Giriş yapmamış kullanıcı için -->
+    <li class="nav-item" id="nav-login"><a href="/user/login" class="nav-link">Login</a></li>
+    <li class="nav-item" id="nav-register"><a href="/user/register" class="nav-link">Register</a></li>
+</ul>
+        </div>
+    </nav>
+    <div class="container mt-3">
+    @RenderBody()
+    </div>
+    @RenderSection("Scripts",required:false)
+</body>
+</html>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const token = localStorage.getItem("token");
+    
+
+    if (token) {
+        // Token varsa, gizli linkleri göster, giriş linklerini gizle
+        document.getElementById("nav-create").classList.remove("d-none");
+        document.getElementById("nav-mypost").classList.remove("d-none");
+        document.getElementById("nav-profile").classList.remove("d-none");
+        document.getElementById("nav-logout").classList.remove("d-none");
+        document.getElementById("nav-admin").classList.remove("d-none");
+        document.getElementById("nav-login").classList.add("d-none");
+        document.getElementById("nav-register").classList.add("d-none");
+
+        // Token’dan username çıkar (basit, JWT decode yapabiliriz)
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch {
+                return null;
+            }
+        }
+
+        const user = parseJwt(token);
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const username = payload['unique_name'];
+        const roles = payload['role'];
+
+        
+        const roleList = Array.isArray(roles) ? roles : [roles];
+
+        if (roleList.includes("admin")) {
+            document.getElementById("nav-admin").classList.remove("d-none");
+        }
+
+        const profileLink = document.getElementById("profileLink");
+        profileLink.href = `/user/profile/${username}`;
+        profileLink.textContent = username;
+
+        // Logout işlemi
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("token");
+            window.location.href = "/user/login";
+        });
+
+    } else {
+        // Token yoksa gizli linkleri gizle, giriş linklerini göster
+        document.getElementById("nav-create").classList.add("d-none");
+        document.getElementById("nav-mypost").classList.add("d-none");
+        document.getElementById("nav-profile").classList.add("d-none");
+        document.getElementById("nav-logout").classList.add("d-none");
+
+        document.getElementById("nav-login").classList.remove("d-none");
+        document.getElementById("nav-register").classList.remove("d-none");
+        
+    }
+});
+
+</script>

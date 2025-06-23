@@ -123,12 +123,6 @@ C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\scopedcss\bundle\MyBlogAp
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\staticwebassets\msbuild.MyBlogAppAPI.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\staticwebassets\msbuild.MyBlogAppAPI.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
-C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\staticwebassets\msbuild.build.MyBlogAppAPI.props
-C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.MyBlogAppAPI.props
-C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.MyBlogAppAPI.props
-C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\staticwebassets.pack.json
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\MyBlogAp.8C1B217E.Up2Date
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\MyBlogAppAPI.dll
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\refint\MyBlogAppAPI.dll
@@ -144,3 +138,8 @@ C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Auth
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\Users\akden\MyBlogApp\MyBlogAppAPI\bin\Debug\net8.0\MyBlogAppAPI.staticwebassets.runtime.json
+C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\rjimswa.dswa.cache.json
+C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+C:\Users\akden\MyBlogApp\MyBlogAppAPI\obj\Debug\net8.0\staticwebassets.build.json.cache
