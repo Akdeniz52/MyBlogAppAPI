@@ -1,0 +1,79 @@
+# See https://aka.ms/vs/.gitignore for more about ignoring Visual Studio files.
+
+##############################
+# Visual Studio / VS Code
+##############################
+.vs/
+.vscode/
+
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.userprefs
+
+##############################
+# Build results
+##############################
+[Bb]in/
+[Oo]bj/
+[Dd]ebug*/
+[Rr]elease*/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Ll]og/
+
+##############################
+# .NET / ASP.NET
+##############################
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+*.pdb
+*.cache
+*.nupkg
+*.snupkg
+nuget.config.local
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+##############################
+# OS files
+##############################
+[Tt]humbs.db
+Desktop.ini
+
+##############################
+# Logs
+##############################
+*.log
+
+##############################
+# Databases / runtime artifacts
+##############################
+*.db
+*.sqlite
+*.sqlite3
+
+# Explicitly ignore the sqlite db file in this repo
+MyBlogAppAPI/blog.db
+
+##############################
+# Uploads (runtime-generated)
+##############################
+**/wwwroot/uploads/
+
+##############################
+# Library Manager (LibMan) restored assets
+# Keep libman.json tracked; restore outputs are usually not committed
+##############################
+**/wwwroot/lib/
+
+

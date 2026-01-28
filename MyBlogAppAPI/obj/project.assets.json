@@ -3466,11 +3466,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\akden\\MyBlogApp\\MyBlogAppAPI\\MyBlogAppAPI.csproj",
+      "projectUniqueName": "C:\\Users\\akden\\OneDrive\\Masaüstü\\21220030042_ABDULLAH_AKDENIZ_Project\\21220030042_ABDULLAH_AKDENIZ_Project_Source_Code\\MyBlogAppAPI\\MyBlogAppAPI.csproj",
       "projectName": "MyBlogAppAPI",
-      "projectPath": "C:\\Users\\akden\\MyBlogApp\\MyBlogAppAPI\\MyBlogAppAPI.csproj",
+      "projectPath": "C:\\Users\\akden\\OneDrive\\Masaüstü\\21220030042_ABDULLAH_AKDENIZ_Project\\21220030042_ABDULLAH_AKDENIZ_Project_Source_Code\\MyBlogAppAPI\\MyBlogAppAPI.csproj",
       "packagesPath": "C:\\Users\\akden\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\akden\\MyBlogApp\\MyBlogAppAPI\\obj\\",
+      "outputPath": "C:\\Users\\akden\\OneDrive\\Masaüstü\\21220030042_ABDULLAH_AKDENIZ_Project\\21220030042_ABDULLAH_AKDENIZ_Project_Source_Code\\MyBlogAppAPI\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

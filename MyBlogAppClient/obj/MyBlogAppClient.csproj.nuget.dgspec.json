@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\akden\\MyBlogAppClient\\MyBlogAppClient.csproj": {}
+    "C:\\Users\\akden\\OneDrive\\Masaüstü\\MyBlogAppClient\\MyBlogAppClient.csproj": {}
   },
   "projects": {
-    "C:\\Users\\akden\\MyBlogAppClient\\MyBlogAppClient.csproj": {
+    "C:\\Users\\akden\\OneDrive\\Masaüstü\\MyBlogAppClient\\MyBlogAppClient.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\akden\\MyBlogAppClient\\MyBlogAppClient.csproj",
+        "projectUniqueName": "C:\\Users\\akden\\OneDrive\\Masaüstü\\MyBlogAppClient\\MyBlogAppClient.csproj",
         "projectName": "MyBlogAppClient",
-        "projectPath": "C:\\Users\\akden\\MyBlogAppClient\\MyBlogAppClient.csproj",
+        "projectPath": "C:\\Users\\akden\\OneDrive\\Masaüstü\\MyBlogAppClient\\MyBlogAppClient.csproj",
         "packagesPath": "C:\\Users\\akden\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\akden\\MyBlogAppClient\\obj\\",
+        "outputPath": "C:\\Users\\akden\\OneDrive\\Masaüstü\\MyBlogAppClient\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
